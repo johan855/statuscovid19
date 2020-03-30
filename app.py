@@ -24,16 +24,14 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-app.layout = html.Div(children=[
-    html.H1(children='COVID-19'),
+app.layout = html.Div([
+    html.H1('COVID-19'),
     html.Div([
-        html.Div(children='''
-            Number of contagions over time.
-            '''),
+        html.Div('''Number of contagions over time.'''),
         dcc.Dropdown(
             id = 'xaxis-column',
             options = [{'label': i, 'value': i} for i in avaliable_indicators],
-            value = 'Argentina'
+            value = 'Colombia'
         ),
         dcc.RadioItems(
             id = 'xaxis-type',
