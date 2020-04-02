@@ -39,14 +39,25 @@ app.layout = html.Div([
             value = 'Linear',
             labelStyle = {'display': 'inline-block'}
         )
-    ], style = {'width': '48%', 'float': 'right', 'display': 'inline-block'}),
+    ], style = {'width': '48%', 'display': 'inline-block'}),
     dcc.Graph(
         id='example-graph',
         figure=fig
     )
 ])
 
-
+@app.callback(
+    Output('example-graph', 'fig'),
+    [Input('xaxis-column', 'value'),
+     Input('xaxis-type', 'value')]
+)
+def update_graph(xaxis_column_name, xaxis_type, ):
+    dff = df_final[df_final['Country/Region'] == country]
+    return {
+        'data': [dict(
+            x=dff[dff['Country/Region'] == xaxis_column_name]['Value'],
+        )]
+    }
 
 if __name__ == '__main__':
     app.run_server(debug=True)
