@@ -9,54 +9,87 @@ from main import get_df
 
 
 df_final = get_df()
-
-avaliable_indicators = df_final['Country/Region'].unique()
-
-country = 'Colombia'
-df_final = df_final.loc[country]
-fig = go.Figure(go.Scatter(x = df_final.index, y = df_final['Value'],
-                  name=country))
-fig.update_layout(title='Contagions over time (2020)',
-                   plot_bgcolor='rgb(230, 230,230)',
-                   showlegend=True)
-
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-
+available_indicators = df_final['Indicator'].unique()
 app.layout = html.Div([
-    html.H1('COVID-19'),
     html.Div([
-        html.Div('''Number of contagions over time.'''),
-        dcc.Dropdown(
-            id = 'xaxis-column',
-            options = [{'label': i, 'value': i} for i in avaliable_indicators],
-            value = 'Colombia'
-        ),
+        html.Div([
+            dcc.Dropdown(
+                id = 'xaxis-column',
+                options=[{'label': i, 'value': i} for i in available_indicators],
+                value='Infected (Total infections per day)'
+            ),
+            dcc.RadioItems(
+                id = 'xaxis-type',
+                options=[{'label': i, 'value': i} for i in ['Linear', 'Log']],
+                value = 'Linear',
+                labelStyle={'display': 'inline-block'}
+            )
+        ],
+        style={'width': '48%', 'display': 'inline-block'}),
+
+        html.Div([
+            dcc.Dropdown(
+                id='yaxis-column',
+                options=[{'label': i, 'value': i} for i in available_indicators],
+                value='Infected (Total infections per day)'
+            ),
         dcc.RadioItems(
-            id = 'xaxis-type',
-            options = [{'label': i, 'value': i} for i in ['Linear','Log']],
-            value = 'Linear',
-            labelStyle = {'display': 'inline-block'}
-        )
-    ], style = {'width': '48%', 'display': 'inline-block'}),
-    dcc.Graph(
-        id='example-graph',
-        figure=fig
+                        id = 'yaxis-type',
+                        options=[{'label': i, 'value': i} for i in ['Linear', 'Log']],
+                        value = 'Linear',
+                        labelStyle={'display': 'inline-block'}
+                    )
+        ],
+        style={'width': '48%', 'float': 'right', 'display': 'inline-block'}),
+    ]),
+
+    dcc.Graph(id='indicator-graphic'),
+    dcc.Slider(
+        id='date-slider',
+        min=df_final['date'].min(),
+        max=df_final['date'].max(),
+        value=df_final['date'].max(),
+        marks={str(date): str(date) for date in df_final['date'].unique()},
+        step=None
     )
 ])
 
 @app.callback(
-    Output('example-graph', 'fig'),
+    Output('indicator-graphic', 'figure'),
     [Input('xaxis-column', 'value'),
-     Input('xaxis-type', 'value')]
-)
-def update_graph(xaxis_column_name, xaxis_type, ):
-    dff = df_final[df_final['Country/Region'] == country]
+     Input('yaxis-column', 'value'),
+     Input('xaxis-type', 'value'),
+     Input('yaxis-type', 'value'),
+     Input('date-slider', 'value')])
+def update_graph(xaxis_column_name, yaxis_column_name, xaxis_type, yaxis_type, date_value):
+    dff = df_final[df_final['date'] == date_value]
+
     return {
         'data': [dict(
-            x=dff[dff['Country/Region'] == xaxis_column_name]['Value'],
-        )]
+            x=dff[dff['Indicator'] == xaxis_column_name]['Value'],
+            y=dff[dff['Indicator'] == yaxis_column_name]['Value'],
+            text=dff[dff['Indicator'] == yaxis_column_name]['Country/Region'],
+            mode='markers',
+            marker={
+                'size': 15,
+                'opacity': 0.5,
+                'line': {'width': 0.5, 'color': 'white'}
+            }
+    )],
+        'layout': dict(
+            xaxis={
+                'title': xaxis_column_name,
+                'type': 'linear' if xaxis_type == 'Linear' else 'Log'
+            },
+            yaxis={
+                'title': yaxis_column_name,
+                'type': 'linear' if yaxis_type == 'Linear' else 'Log'
+            },
+            margin={'l': 40, 'b': 40, 't': 10, 'r': 0},
+            hovermode='closest'
+        )
     }
 
 if __name__ == '__main__':

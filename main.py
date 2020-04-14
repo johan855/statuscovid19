@@ -9,7 +9,8 @@ class covid_data():
         self.df_clean = self.df_clean.drop('Long', axis=1)
         self.df_clean = self.df_clean.melt(id_vars=['Province/State', 'Country/Region', 'Indicator'], var_name='Date', value_name='Value')
         # Fix dates and group
-        self.df_clean['date'] = pd.to_datetime(self.df_clean['Date'])
+        self.df_clean['date'] = pd.to_datetime(self.df_clean['Date']).dt.dayofyear
+        self.df_clean['year'] = pd.to_datetime(self.df_clean['Date']).dt.year
 
 
 def get_df():
