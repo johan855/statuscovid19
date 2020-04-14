@@ -30,7 +30,7 @@ def get_df():
     df_list = [df_infected_clean, df_deaths_clean, df_recoveries_clean]
     df_final = pd.DataFrame(columns=df_infected_clean.df_clean.keys())
     for df in df_list:
-        df_final = df_final.append(df)
+        df_final = df_final.append(df.df_clean)
     return df_final
 
 
