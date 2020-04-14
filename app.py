@@ -12,7 +12,7 @@ df_final = get_df()
 
 avaliable_indicators = df_final['Country/Region'].unique()
 
-country = 'Argentina'
+country = 'Colombia'
 df_final = df_final.loc[country]
 fig = go.Figure(go.Scatter(x = df_final.index, y = df_final['Value'],
                   name=country))
